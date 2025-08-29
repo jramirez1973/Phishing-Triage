@@ -8,6 +8,8 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.7.1-orange.svg)](https://scikit-learn.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+![Home Page](assets/home_page.png)
+
 ## 🎯 **Project Overview**
 
 An enterprise-grade phishing detection system that combines **machine learning**, **threat intelligence**, and **automated analysis** to identify and assess phishing threats in real-time. Built for security operations centers (SOCs) and cybersecurity teams.
@@ -80,6 +82,24 @@ graph TD
     A -- "9. GET /report/{id}" --> B
     B -- "10. Retrieve Report from DB" --> G
 ```
+
+---
+
+## 🖼️ Visual Showcase
+
+### 🏠 Home Page
+![Home Page](assets/home_page.png)
+
+### ⚙️ API Documentation
+![API Page](assets/api_page.png)
+
+### 🛡️ Risk Analysis in Action
+
+#### ✅ Low Risk Result
+![Low Risk Result](assets/low_risk.gif)
+
+#### 🚨 High Risk Result
+![High Risk Result](assets/high_risk.gif)
 
 ---
 
@@ -389,67 +409,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 *Built with ❤️ for cybersecurity and machine learning*
 
 </div>
-
-
-
-## ⚡ **Quick Start**
-
-### **1. Clone & Setup**
-```bash
-git clone https://github.com/itsnothuy/Phishing-Triage.git
-cd Phishing-Triage
-make setup
-```
-> Note: The `setup` command creates a virtual environment inside the `backend` directory.
-
-### **2. Configure Environment**
-```bash
-cp .env.example .env
-# Add your API keys (URLhaus, VirusTotal) to the .env file
-```
-
-### **3. Train ML Model**
-```bash
-make train
-```
-
-### **4. Start Services with Docker**
-```bash
-make docker-up
-```
-> This will build and start the backend, frontend, and MLflow containers.
-
-### **5. Access the System**
-- **💻 Frontend UI**: [http://localhost:3000](http://localhost:3000)
-- **⚙️ Backend API Docs**: [http://localhost:8001/docs](http://localhost:8001/docs)
-- **📈 MLflow Dashboard**: [http://localhost:5000](http://localhost:5000)
-
----
-## 📚 **Documentation**
-
-- **[Installation Guide](docs/QUICKSTART.md)** - Step-by-step setup
-- **[API Reference](docs/api.md)** - Complete endpoint documentation
-- **[ML Pipeline](docs/model_card.md)** - Model training and evaluation
-- **[Deployment Guide](docs/deployment.md)** - Production deployment
-- **[Configuration](docs/configuration.md)** - Environment setup
-
-## 🖼️ Visual Showcase
-
-### 🏠 Home Page
-![Home Page](assets/home_page.png)
-
-### ⚙️ API Documentation
-![API Page](assets/api_page.png)
-
-### 🛡️ Risk Analysis in Action
-
-#### ✅ Low Risk Result
-![Low Risk Result](assets/low_risk.gif)
-
-#### 🚨 High Risk Result
-![High Risk Result](assets/high_risk.gif)
-
----
-
-## 🏗️ System Architecture
-
