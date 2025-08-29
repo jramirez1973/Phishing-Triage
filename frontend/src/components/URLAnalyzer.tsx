@@ -50,19 +50,19 @@ const URLAnalyzer: React.FC = () => {
         detonate: false
       });
 
-      const submissionId = submitResponse.data.id;
+      const submissionId = (submitResponse.data as any).id;
       
       // Wait for processing and get report
       setTimeout(async () => {
         try {
           const reportResponse = await axios.get(`${API_BASE}/report/${submissionId}`);
-          setResult(reportResponse.data);
+          setResult(reportResponse.data as AnalysisResult);
           
           // Also get threat intelligence
           const intelResponse = await axios.post(`${API_BASE}/intel`, {
             url: url.trim()
           });
-          setIntelResult(intelResponse.data);
+          setIntelResult(intelResponse.data as ThreatIntelResult);
           
         } catch (err) {
           setError('Failed to get analysis results');

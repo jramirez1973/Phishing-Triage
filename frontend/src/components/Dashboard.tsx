@@ -24,7 +24,7 @@ const Dashboard: React.FC = () => {
     const fetchMetrics = async () => {
       try {
         const response = await axios.get(`${API_BASE}/metrics`);
-        setMetrics(response.data);
+        setMetrics(response.data as Metrics);
       } catch (error) {
         console.error('Failed to fetch metrics:', error);
         // Set demo data for UI demonstration

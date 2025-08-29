@@ -31,7 +31,7 @@ const SystemStatus: React.FC = () => {
     try {
       // Check main API health
       const healthResponse = await axios.get(`${API_BASE}/health`);
-      setHealth(healthResponse.data);
+      setHealth(healthResponse.data as HealthCheck);
 
       // Check individual services
       const serviceChecks = await Promise.allSettled([
