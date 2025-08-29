@@ -81,7 +81,7 @@ sleep 3
 echo ""
 echo "🎉 Phishing Triage System is now running!"
 echo "📊 Access the system at:"
-echo "   - 💻 Frontend UI: http://localhost:3000/public/test.html"
+echo "   - 💻 Frontend UI: http://localhost:3000"
 echo "   - ⚙️ Backend API: http://localhost:8001/docs"
 echo ""
 echo "Press Ctrl+C to stop all services."

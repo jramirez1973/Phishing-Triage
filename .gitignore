@@ -1,15 +1,29 @@
-# Backend
-backend/.venv/
-backend/data/
-backend/mlruns/
-backend/__pycache__/
-backend/api/__pycache__/
-backend/ml/__pycache__/
-backend/reports/__pycache__/
-backend/enrich/__pycache__/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Frontend
-frontend/node_modules/
-frontend/build/
-frontend/.DS_Store
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+.env
+__pycache__/
+*.joblib
+data/
+mlruns/
+storage/
+backend_server.log
+model.joblib
+/backend/ml/model.joblib
+/ml/model.joblib
 
