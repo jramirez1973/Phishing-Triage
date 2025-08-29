@@ -9,7 +9,30 @@ from .features import url_features, get_feature_names
 
 # Global model cache
 _model_cache = None
-_model_path = os.getenv("MODEL_PATH", "ml/model.joblib")
+
+def get_model_path() -> str:
+    """Get the path to the trained model file."""
+    # First check environment variable
+    if os.getenv("MODEL_PATH"):
+        return os.getenv("MODEL_PATH")
+    
+    # Check for model in various locations
+    possible_paths = [
+        "model.joblib",
+        "ml/model.joblib",
+        "backend/ml/model.joblib",
+        "../ml/model.joblib"
+    ]
+    
+    for path in possible_paths:
+        if os.path.exists(path):
+            print(f"Found model at {path}")
+            return path
+    
+    # Default path
+    return "ml/model.joblib"
+
+_model_path = get_model_path()
 
 
 def load_model() -> Tuple[object, object, float]:

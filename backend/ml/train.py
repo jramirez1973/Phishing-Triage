@@ -202,7 +202,12 @@ def train_model(X: pd.DataFrame, y: np.ndarray, model_type: str = "gb") -> tuple
             'trained_at': datetime.utcnow().isoformat()
         }
         
+        # Save model to multiple locations for compatibility
+        os.makedirs("ml", exist_ok=True)
         joblib.dump(model_artifact, "ml/model.joblib")
+        joblib.dump(model_artifact, "model.joblib")  # Root directory
+        
+        # Log with MLflow
         mlflow.log_artifact("ml/model.joblib")
         
         # Log model with MLflow
