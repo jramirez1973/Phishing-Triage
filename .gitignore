@@ -27,3 +27,7 @@ model.joblib
 /backend/ml/model.joblib
 /ml/model.joblib
 
+# Cursor/IDE specific files
+.cursor-history
+cursor_*.md
+
