@@ -51,8 +51,7 @@ fi
 
 # Start backend server
 echo "🚀 Starting backend API server on http://localhost:8001..."
-
-uvicorn backend.api.main:app --host 0.0.0.0 --port 8001 --app-dir . > backend_server.log 2>&1 &
+python3 -m uvicorn backend.api.main:app --host 0.0.0.0 --port 8001 --app-dir . &
 BACKEND_PID=$!
 
 # Wait for backend to start
