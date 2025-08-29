@@ -41,9 +41,18 @@ else
   exit 1
 fi
 
+# Load environment variables
+if [ -f ".env" ]; then
+  echo "Loading environment variables from .env..."
+  source .env
+else
+  echo "Warning: .env file not found. Ensure environment variables are set."
+fi
+
 # Start backend server
 echo "🚀 Starting backend API server on http://localhost:8001..."
-PYTHONPATH=$PWD/backend uvicorn backend.api.main:app --host 0.0.0.0 --port 8001 &
+
+uvicorn backend.api.main:app --host 0.0.0.0 --port 8001 --app-dir . > backend_server.log 2>&1 &
 BACKEND_PID=$!
 
 # Wait for backend to start
@@ -81,3 +90,4 @@ echo "Press Ctrl+C to stop all services."
 # Wait for user to press Ctrl+C
 trap "echo '🛑 Stopping services...'; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit 0" INT
 wait
+

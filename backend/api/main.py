@@ -6,6 +6,11 @@ from typing import Optional
 import uuid
 import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load .env file from the project root
+# This ensures that OPENAI_API_KEY is available as an environment variable
+load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 
 from .models import init_db, get_db, Submission
 from .schemas import SubmitURL, SubmissionResponse, ReportResponse, HealthResponse, MetricsResponse

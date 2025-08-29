@@ -298,3 +298,4 @@ const SimpleURLAnalyzer: React.FC = () => {
 };
 
 export default SimpleURLAnalyzer;
+

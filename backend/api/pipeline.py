@@ -3,6 +3,12 @@ import os
 import re
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
+import traceback
+import sys # Ensure sys is imported
+
+# Explicitly add the backend directory to sys.path for module discovery
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 try:
     from iocextract import extract_urls, extract_ips, extract_hashes
 except ImportError:
@@ -158,6 +164,7 @@ async def handle_url_submission(submission_id: str, req: Dict[str, Any], db: Ses
         enhanced_notes = enhance_report_with_openai(report_payload)
     except Exception as e:
         print(f"AI report enhancement failed: {e}")
+        traceback.print_exc()
         enhanced_notes = ""
     
     # Final report rendering
