@@ -141,19 +141,26 @@ async def handle_url_submission(submission_id: str, req: Dict[str, Any], db: Ses
     # Extract IOCs
     iocs = extract_iocs(url, urlhaus_data, sandbox_data)
     
-    # Generate enhanced report
+    # --- Report Generation ---
+    report_payload = {
+        "url": url,
+        "score": score,
+        "features": features,
+        "enrichment": enrichment,
+        "sandbox": sandbox_data,
+        "iocs": iocs,
+        "status": "completed"
+    }
+
+    # Generate enhanced summary with AI
     try:
-        from reports.local_llm import enhance_report_with_llm
-        enhanced_notes = enhance_report_with_llm(
-            url=url,
-            score=score,
-            intel_results=enrichment.get("advanced_intel", {}),
-            sandbox_results=sandbox_data
-        )
+        from reports.openai_enhancer import enhance_report_with_openai
+        enhanced_notes = enhance_report_with_openai(report_payload)
     except Exception as e:
-        print(f"LLM enhancement failed: {e}")
+        print(f"AI report enhancement failed: {e}")
         enhanced_notes = ""
     
+    # Final report rendering
     report_md = build_report(
         url=url,
         score=score,
