@@ -1,65 +1,15 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+# Backend
+backend/.venv/
+backend/data/
+backend/mlruns/
+backend/__pycache__/
+backend/api/__pycache__/
+backend/ml/__pycache__/
+backend/reports/__pycache__/
+backend/enrich/__pycache__/
 
-# Virtual Environment
-.venv/
-venv/
-ENV/
-env/
+# Frontend
+frontend/node_modules/
+frontend/build/
+frontend/.DS_Store
 
-# Environment variables
-.env
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# MLflow
-mlruns/
-mlflow.db
-
-# Model artifacts
-*.joblib
-*.pkl
-
-# Data
-storage/*.db
-storage/artifacts/
-data/*.csv
-data/*.arff
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Temporary files
-*.tmp
-*.log
