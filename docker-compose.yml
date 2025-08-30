@@ -4,7 +4,7 @@ services:
   phish-triage:
     build: .
     ports:
-      - "8000:8000"
+      - "8001:8001"
     environment:
       - DATABASE_URL=sqlite:///storage/submissions.db
       - RISK_THRESHOLD=0.85
@@ -20,7 +20,7 @@ services:
       - ./data:/app/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
