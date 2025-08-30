@@ -166,7 +166,7 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:8001';
+        const API_BASE = window.location.origin; // Dynamically set API_BASE
 
         function setURL(url) {
             document.getElementById('urlInput').value = url;
