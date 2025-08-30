@@ -64,8 +64,8 @@ def health():
 @app.post("/submit-url", response_model=SubmissionResponse)
 @limiter.limit("20/minute")
 async def submit_url_endpoint(
+    request: Request, # Must be placed before arguments with default values
     url_req: SubmitURL,
-    request: Request, # Must be added for the limiter to access the request state
     db: Session = Depends(get_db)
 ):
     """Submit a URL for analysis."""
@@ -129,8 +129,8 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 @app.post("/submit-email", response_model=SubmissionResponse)
 @limiter.limit("5/minute") # Stricter limit for file uploads
 async def submit_email_endpoint(
+    request: Request, # Must be placed before arguments with default values
     eml: UploadFile = File(...),
-    request: Request, # Must be added for the limiter to access the request state
     db: Session = Depends(get_db)
 ):
     """Submit an email file for analysis."""
