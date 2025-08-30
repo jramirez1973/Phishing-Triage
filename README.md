@@ -10,7 +10,7 @@
 
 
 <p align="center">
-  <img src="./assets/icon.png" alt="Icon Picture" width="200"/> &nbsp;&nbsp;&nbsp;
+  <img src="./assets/icon.png" alt="Icon Picture" width="150"/> &nbsp;&nbsp;&nbsp;
   <img src="./assets/home_page.png" alt="Home Page" width="300"/> &nbsp;&nbsp;&nbsp;
   <img src="./assets/design.png" alt="System Design Picture" width="300"/>
 </p>
