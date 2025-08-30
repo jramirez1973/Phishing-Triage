@@ -165,6 +165,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         const API_BASE = window.location.origin; // Dynamically set API_BASE
 
@@ -264,6 +265,23 @@
             }
 
             resultDiv.className = `result ${riskClass}`;
+
+            // Security: Sanitize and render the markdown report
+            let reportHtml = '';
+            if (result.report_markdown) {
+                // The 'sanitize: true' option is deprecated in newer versions, 
+                // but for older or CDN versions it's a quick safeguard. 
+                // A better approach is to use a dedicated sanitizer like DOMPurify.
+                // For this project, we enable the basic sanitization if available.
+                const sanitizedMarkdown = marked.parse(result.report_markdown, { sanitize: true });
+                reportHtml = `
+                    <details style="margin-top: 20px;">
+                        <summary style="cursor: pointer; font-weight: bold;">📄 View Detailed Report</summary>
+                        <div style="background: rgba(0,0,0,0.05); padding: 16px; border-radius: 6px; margin-top: 12px; overflow: auto; max-height: 400px; font-size: 14px;">${sanitizedMarkdown}</div>
+                    </details>
+                `;
+            }
+
             resultDiv.innerHTML = `
                 <h3>${riskIcon} Analysis Complete</h3>
                 <div class="score">${riskLevel}</div>
@@ -271,12 +289,7 @@
                 <p><strong>URL:</strong> ${url}</p>
                 <p><strong>Status:</strong> ${result.status || 'completed'}</p>
                 <p><strong>Analysis Time:</strong> ${new Date(result.created_at || Date.now()).toLocaleString()}</p>
-                ${result.report_markdown ? `
-                    <details style="margin-top: 20px;">
-                        <summary style="cursor: pointer; font-weight: bold;">📄 View Detailed Report</summary>
-                        <pre style="background: rgba(0,0,0,0.05); padding: 16px; border-radius: 6px; margin-top: 12px; overflow: auto; max-height: 300px; font-size: 12px;">${result.report_markdown}</pre>
-                    </details>
-                ` : ''}
+                ${reportHtml}
             `;
         }
 

@@ -1,5 +1,5 @@
 """Main FastAPI application for phishing triage service."""
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +9,9 @@ import uuid
 import os
 from datetime import datetime
 from dotenv import load_dotenv
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # Load .env file from the project root
 # This ensures that OPENAI_API_KEY is available as an environment variable
@@ -18,12 +21,19 @@ from .models import init_db, get_db, Submission
 from .schemas import SubmitURL, SubmissionResponse, ReportResponse, HealthResponse, MetricsResponse
 from .pipeline import handle_url_submission, handle_eml_submission
 
+# -- Security: Rate Limiting --
+# Initialize a rate limiter. By default, it uses an in-memory storage.
+# get_remote_address is a function that identifies the client by IP.
+limiter = Limiter(key_func=get_remote_address)
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Phish Triage",
     version="0.1.0",
     description="Automated phishing detection and enrichment service"
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Add CORS middleware for frontend
 app.add_middleware(
@@ -52,8 +62,10 @@ def health():
 
 
 @app.post("/submit-url", response_model=SubmissionResponse)
+@limiter.limit("20/minute")
 async def submit_url_endpoint(
     url_req: SubmitURL,
+    request: Request, # Must be added for the limiter to access the request state
     db: Session = Depends(get_db)
 ):
     """Submit a URL for analysis."""
@@ -112,12 +124,23 @@ async def submit(
         raise HTTPException(400, "Provide url JSON or upload .eml file")
 
 
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+
 @app.post("/submit-email", response_model=SubmissionResponse)
+@limiter.limit("5/minute") # Stricter limit for file uploads
 async def submit_email_endpoint(
     eml: UploadFile = File(...),
+    request: Request, # Must be added for the limiter to access the request state
     db: Session = Depends(get_db)
 ):
     """Submit an email file for analysis."""
+    # Security: Check file size to mitigate DoS from python-multipart vulnerability
+    if eml.size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File size exceeds the limit of {MAX_FILE_SIZE / (1024*1024)} MB"
+        )
+
     submission_id = str(uuid.uuid4())
     content = await eml.read()
     
