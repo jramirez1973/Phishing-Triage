@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 <div align="center">
-  ![Home Page](assets/icon.png)
+  ![Home Page](./assets/icon.png)
 </div>
 
 ## 🎯 **Project Overview**
