@@ -9,7 +9,10 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 
-[![Home Page](./assets/icon.png)](https://github.com/itsnothuy/Phishing-Triage)
+<p align="center">
+  <img src="./assets/icon.png" alt="Icon Picture" width="200"/> &nbsp;&nbsp;&nbsp;
+  <img src="./assets/home_page.png" alt="Home Page" width="400"/>
+</p>
 
 
 ## 🎯 **Project Overview**
@@ -95,12 +98,12 @@ graph TD
 ### ⚙️ API Documentation
 ![API Page](assets/api_page.png)
 
-### 🛡️ Risk Analysis in Action
+### 🛡️ Risk Analysis in Action (Demo videos)
 
-#### ✅ Low Risk Result
+#### ✅ Low Risk Result (GIF)
 ![Low Risk Result](assets/low_risk.gif)
 
-#### 🚨 High Risk Result
+#### 🚨 High Risk Result (GIF)
 ![High Risk Result](assets/high_risk.gif)
 
 ---
