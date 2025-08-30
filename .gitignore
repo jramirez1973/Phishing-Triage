@@ -1,5 +1,5 @@
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -19,13 +19,27 @@ Thumbs.db
 .env
 __pycache__/
 *.joblib
-data/
 mlruns/
 storage/
 backend_server.log
 model.joblib
 /backend/ml/model.joblib
 /ml/model.joblib
+
+# Frontend development assets (React/Node.js)
+frontend/node_modules/
+frontend/package.json
+frontend/package-lock.json
+frontend/postcss.config.js
+frontend/tsconfig.json
+frontend/src/
+frontend/Dockerfile
+frontend/nginx.conf
+
+# Backend development assets
+backend/tests/
+backend/config.py
+backend/temp_openai_test.py
 
 # Cursor/IDE specific files
 .cursor-history
