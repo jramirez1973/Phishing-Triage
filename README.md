@@ -9,7 +9,9 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 
-[![Home Page](./assets/icon.png)](https://github.com/itsnothuy/Phishing-Triage)
+<p align="center">
+  <img src="./assets/icon.png" alt="Icon Picture" width="200"/>
+</p>
 
 
 ## 🎯 **Project Overview**
