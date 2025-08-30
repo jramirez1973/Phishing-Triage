@@ -17,6 +17,7 @@ Thumbs.db
 
 # Project specific
 .env
+.venv/
 __pycache__/
 *.joblib
 mlruns/
