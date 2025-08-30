@@ -2,7 +2,7 @@
 
 ## Model Details
 - **Model Type**: gb
-- **Training Date**: 2025-08-29
+- **Training Date**: 2025-08-30
 - **Framework**: scikit-learn
 
 ## Performance Metrics
