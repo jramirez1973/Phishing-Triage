@@ -1,5 +1,7 @@
 """Main FastAPI application for phishing triage service."""
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -22,6 +24,10 @@ app = FastAPI(
     version="0.1.0",
     description="Automated phishing detection and enrichment service"
 )
+
+# Mount static files for the frontend AFTER API routes to prevent shadowing
+# The frontend is in the ../../frontend directory relative to this file
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 # Add CORS middleware for frontend
 app.add_middleware(
@@ -237,21 +243,3 @@ async def threat_intel(url_data: dict):
         return result
     except Exception as e:
         raise HTTPException(500, f"Intelligence lookup failed: {str(e)}")
-
-
-@app.get("/")
-def root():
-    """Root endpoint with API information."""
-    return {
-        "service": "Phish Triage API",
-        "version": "0.1.0",
-        "docs": "/docs",
-        "health": "/health",
-        "endpoints": {
-            "submit_url": "/submit-url",
-            "submit_email": "/submit-email", 
-            "threat_intel": "/intel",
-            "report": "/report/{id}",
-            "metrics": "/metrics"
-        }
-    }

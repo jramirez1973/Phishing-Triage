@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Trap to kill background processes on exit
-trap "echo 'Stopping services...' && kill $BACKEND_PID $FRONTEND_PID 2>/dev/null && echo 'Services stopped.'" EXIT
+trap "echo 'Stopping services...' && kill $BACKEND_PID 2>/dev/null && echo 'Services stopped.'" EXIT
 
 # Function to check if a port is in use and kill the process
 kill_if_port_in_use() {
@@ -14,9 +14,8 @@ kill_if_port_in_use() {
   fi
 }
 
-# Kill any existing processes on ports 8001 (backend) and 3000 (frontend)
+# Kill any existing processes on port 8001 (backend)
 kill_if_port_in_use 8001
-kill_if_port_in_use 3000
 
 # Activate virtual environment if it exists
 if [ -f ".venv/bin/activate" ]; then
@@ -52,30 +51,14 @@ else
   exit 1
 fi
 
-# Start frontend server
-echo "🚀 Starting frontend UI server on http://localhost:3000/...
-"# Change directory to frontend before starting the simple HTTP server
-(cd frontend && python3 -m http.server 3000 &) # Serve frontend from its directory
-FRONTEND_PID=$!
-
-echo "⏳ Waiting for frontend to start..."
-# Give the frontend server a moment to start up
-sleep 2
-
-if curl -s http://localhost:3000/ > /dev/null; then
-  echo "✅ Frontend UI is running! Access at http://localhost:3000/"
-else
-  echo "❌ Frontend UI failed to start."
-fi
-
 # Print access information
 echo ""
 echo "🎉 Phishing Triage System is now running!"
 echo "📊 Access the system at:"
-echo "   - 💻 Frontend UI: http://localhost:3000/"
+echo "   - 💻 Frontend UI: http://localhost:8001/"
 echo "   - ⚙️ Backend API: http://localhost:8001/docs"
 echo "   - 📈 MLflow Dashboard: http://localhost:5000 (if integrated and running separately)"
 echo ""
 echo "Press Ctrl+C to stop all services."
 
-wait $BACKEND_PID $FRONTEND_PID # Keep the script running until background processes are killed
+wait $BACKEND_PID # Keep the script running until background processes are killed
