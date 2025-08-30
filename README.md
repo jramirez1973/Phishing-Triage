@@ -8,9 +8,9 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.7.1-orange.svg)](https://scikit-learn.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-<div align="center">
+
 [![Home Page](./assets/icon.png)](https://github.com/itsnothuy/Phishing-Triage)
-</div>
+
 
 ## 🎯 **Project Overview**
 
