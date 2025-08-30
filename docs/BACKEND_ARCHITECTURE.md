@@ -1,6 +1,6 @@
-# Backend Architecture: A Comprehensive File-by-File Analysis
+# Backend Architecture: A Verified, In-Depth Analysis
 
-This document provides a definitive, in-depth analysis of every file and directory within the backend codebase. It is designed to be a technical reference for understanding the specific responsibilities and interactions of each component.
+This document provides a definitive, in-depth analysis of every file and directory within the backend codebase. It has been fact-checked against the source code to serve as an accurate technical reference for understanding the specific responsibilities and interactions of each component.
 
 ---
 
@@ -10,39 +10,32 @@ This directory is the heart of the application. It handles incoming web requests
 
 ### ➤ `api/main.py`
 *   **Primary Responsibility**: **API Server Entrypoint**. This file defines and runs the main FastAPI application.
-*   **Key Components**:
-    *   **FastAPI App Initialization**: `app = FastAPI(...)` creates the central application instance.
-    *   **CORS Middleware**: `app.add_middleware(CORSMiddleware, ...)` is configured here to allow the frontend web page (running on a different port) to make requests to this backend server.
-    *   **Startup Event**: The `@app.on_event("startup")` decorator registers the `init_db()` function to run once when the server starts, ensuring all necessary database tables are created.
-    *   **API Endpoints (`@app.post`, `@app.get`)**:
-        *   `/submit-url`: The primary endpoint for receiving new URLs. It validates the input using the `SubmitURL` schema, creates an initial record in the database, and then hands off processing to `pipeline.py`. After the pipeline finishes, it updates the database record with the results.
-        *   `/report/{submission_id}`: Allows a client to retrieve a completed analysis report by its unique ID. It queries the database and returns the stored data.
-        *   `/health`: A simple endpoint used by the deployment environment (Render) to verify that the application is running and healthy.
-        *   `/metrics`: Provides a high-level overview of system usage statistics.
-    *   **Static File Mounting**: `app.mount("/", StaticFiles(directory="frontend", html=True), ...)` is the crucial line that tells FastAPI to also act as a web server for the frontend's `index.html`, CSS, and JavaScript files. It is placed at the end to ensure it doesn't override the API endpoints.
+*   **Verified Details**:
+    *   **Environment Loading**: Crucially, this file begins by calling `load_dotenv(...)` to ensure that environment variables (like the `OPENAI_API_KEY`) from the root `.env` file are loaded into the application's memory at startup.
+    *   **Database Initialization**: The `@app.on_event("startup")` decorator correctly registers the `init_db()` function to run once when the server starts, ensuring all necessary database tables are created before any requests are handled.
+    *   **Endpoint Logic**:
+        *   `/submit-url`: The logic correctly follows the "create first, then process" pattern. It immediately creates a `Submission` record with a `"queued"` status and commits it to the database. Only then does it call the `handle_url_submission` pipeline. This is a robust design that prevents losing track of submissions if the analysis fails. Upon completion, it updates the same database record with the results.
+        *   **Email & Legacy Endpoints**: It also includes `/submit-email` and a legacy `/submit` endpoint, demonstrating support for multiple submission types.
+    *   **Static File Serving**: The `app.mount(...)` directive is correctly placed at the **end of the file**. This is a critical detail in FastAPI, as it ensures the static file server doesn't intercept and block requests meant for the API endpoints defined above it.
 
 ### ➤ `api/pipeline.py`
-*   **Primary Responsibility**: **Analysis Orchestrator**. This is arguably the most important file for understanding the application's workflow. It doesn't handle any web requests directly; instead, it orchestrates the step-by-step process of analyzing a submission.
-*   **Key Functions**:
-    *   **`handle_url_submission(...)`**: This is the main function. It takes a URL and executes the entire analysis sequence in a specific order:
-        1.  Calls `ml.predict.score_url()` to get the machine learning risk score.
-        2.  Calls `enrich.advanced_intel.ThreatIntelAggregator` to gather data from external sources like URLhaus.
-        3.  Calls its own `extract_iocs()` helper to pull out indicators of compromise.
-        4.  Calls `reports.openai_enhancer.enhance_report_with_openai()` to generate a summary.
-        5.  Calls `reports.render.build_report()` to assemble the final Markdown report.
-        6.  Returns all of these artifacts back to `main.py`.
+*   **Primary Responsibility**: **Analysis Orchestrator**. This module acts as a "conductor," coordinating the various analysis tasks in sequence.
+*   **Verified Details**:
+    *   **Graceful Fallbacks**: The file is designed with resilience in mind. It uses `try...except ImportError` blocks when importing the machine learning modules (`ml.predict`, `ml.features`). If the ML components are missing, it defines simple, rule-based fallback functions (e.g., `score_url` that checks for keywords) so that the application can still provide a basic analysis instead of crashing.
+    *   **Orchestration Flow in `handle_url_submission`**: The sequence of operations described in the previous version is correct. It calls `url_features`, `score_url`, `ThreatIntelAggregator`, `extract_iocs`, `enhance_report_with_openai`, and finally `build_report`.
+    *   **Detonation Logic**: It contains logic to trigger a sandbox detonation (`detonate_in_sandbox`) only if certain conditions are met: the request explicitly asks for it (`req.get("detonate")`) AND the risk is high (either from the ML score or a URLhaus hit).
 
 ### ➤ `api/models.py`
-*   **Primary Responsibility**: **Database Schema Definition**. This file defines the structure of the application's database tables using SQLAlchemy's ORM (Object-Relational Mapping).
-*   **Key Components**:
-    *   **`Submission` Class**: This class maps directly to the `submissions` table in the database. Each attribute of the class (e.g., `id`, `url`, `score`, `report_markdown`) corresponds to a column in that table. SQLAlchemy uses this model to translate Python objects into SQL queries.
-    *   **`init_db()` Function**: Contains the logic to create the database file and the `submissions` table if they don't already exist.
+*   **Primary Responsibility**: **Database Schema Definition**. Defines the database tables using SQLAlchemy's ORM.
+*   **Verified Details**:
+    *   **Engine Configuration**: The SQLAlchemy engine is configured with `connect_args={"check_same_thread": False}`. This is a specific and necessary configuration for using SQLite in a multi-threaded application like FastAPI.
+    *   **`Submission` Model**: The model accurately represents all the data points collected during the analysis, including fields for the final `report_markdown`, `iocs`, raw `enrichment` data, `features`, and `sandbox_data`.
 
 ### ➤ `api/schemas.py`
-*   **Primary Responsibility**: **Data Validation and Serialization**. This file defines the expected shape of API request and response data using Pydantic.
-*   **Key Components**:
-    *   **`SubmitURL`**: Defines that an incoming submission request *must* contain a `url` field that is a valid URL.
-    *   **`ReportResponse`**, **`SubmissionResponse`**, etc.: These models define the exact fields and data types that the API will send back in its JSON responses. This ensures consistency and helps auto-generate API documentation.
+*   **Primary Responsibility**: **Data Validation and Serialization**. Defines API data contracts using Pydantic.
+*   **Verified Details**:
+    *   **Strict Typing**: The schemas use specific Pydantic types like `HttpUrl` to enforce strong validation. For example, a request to `/submit-url` will be rejected if the provided `url` is not a well-formed web address.
+    *   **Field Constraints**: The `SubmitURL` schema uses `Field(..., pattern="...")` to constrain the `provider` string to only "anyrun" or "joe", preventing invalid sandbox provider names.
 
 ---
 ## Directory 2: `ml/` - The Machine Learning Engine
@@ -50,50 +43,59 @@ This directory is the heart of the application. It handles incoming web requests
 This directory contains all code and assets related to the phishing prediction model.
 
 ### ➤ `ml/train.py`
-*   **Primary Responsibility**: **Model Training**. This is a standalone script that is run offline to create the `model.joblib` file. It is not part of the live API.
-*   **Workflow**:
-    1.  Loads a dataset of labeled phishing and legitimate URLs.
-    2.  Uses `features.py` to convert each URL into a feature vector.
-    3.  Splits the data into training and testing sets.
-    4.  Trains a `GradientBoostingClassifier`.
-    5.  Evaluates the model's performance.
-    6.  Uses `joblib.dump()` to save the trained model object to the `model.joblib` file.
+*   **Primary Responsibility**: **Model Training and Evaluation**. This is an offline script for creating the `model.joblib` artifact.
+*   **Verified Details**:
+    *   **MLflow Integration**: This script is heavily integrated with `MLflow`. It logs parameters, metrics (ROC-AUC, F1-score, etc.), and artifacts (like feature importance plots and a `model_card.md`) for each training run, enabling experiment tracking and reproducibility.
+    *   **Artifact Bundling**: It doesn't just save the raw model. It creates a dictionary `model_artifact` that bundles the trained `model`, the `scaler` used for feature normalization, the list of `features`, performance `metrics`, and the training timestamp. This entire dictionary is what gets saved to `model.joblib`, ensuring all necessary components for prediction are stored together.
 
 ### ➤ `ml/predict.py`
-*   **Primary Responsibility**: **Model Inference**. This module is the bridge between the live API and the offline-trained model.
-*   **Key Functions**:
-    *   **`load_model()`**: Caches the `model.joblib` file in memory so it doesn't have to be re-read from disk for every prediction, which improves performance.
-    *   **`score_url(url)`**: This is the primary function used by the `pipeline.py`. It takes a single URL, calls `features.py` to generate the feature vector, and uses the loaded model to predict the phishing probability.
+*   **Primary Responsibility**: **Model Inference for the Live API**.
+*   **Verified Details**:
+    *   **Model Caching**: The script uses a global variable `_model_cache`. The `load_model()` function ensures the `model.joblib` file is read from disk only once when the first request comes in. For all subsequent requests, the model is served directly from memory, which significantly improves performance.
+    *   **Robust Path Finding**: The `get_model_path()` function intelligently searches in multiple common locations for `model.joblib`, making the application less brittle to changes in the current working directory.
+    *   **Feature Consistency**: Before making a prediction, `score_url` explicitly re-orders the columns of the input DataFrame to match the exact order of features the model was trained on (`get_feature_names()`), preventing subtle prediction errors.
 
 ### ➤ `ml/features.py`
-*   **Primary Responsibility**: **Feature Engineering**. This module contains the domain-specific logic for converting a URL string into a set of meaningful numerical features that a machine learning model can understand.
-*   **Key Features Extracted**: It calculates dozens of features, including lexical features (`url_len`, `domain_entropy`, `special_char_ratio`), host-based features (`tldextract` is used here), and keyword-based features (presence of terms like "login", "secure", "verify").
+*   **Primary Responsibility**: **URL Feature Engineering**. Converts a URL string into a numerical vector.
+*   **Verified Details**:
+    *   **Rich Feature Set**: The `url_features` function is comprehensive, extracting over 30 distinct features. It correctly uses libraries like `tldextract` for robust domain parsing and calculates complex features like Shannon `entropy` to detect randomness in domain names.
+    *   **Error Handling**: The entire feature extraction process is wrapped in a `try...except` block. If an unexpected error occurs with a malformed URL, it returns a vector of zeros, preventing the entire analysis pipeline from crashing.
 
 ---
 ## Directory 3: `enrich/` - External Data Enrichment
 
-This directory contains the clients used to query external threat intelligence services.
+This directory contains clients for querying third-party threat intelligence services.
 
 ### ➤ `enrich/advanced_intel.py`
-*   **Primary Responsibility**: **Intelligence Aggregation**. This file's `ThreatIntelAggregator` class is designed to be a central point for managing multiple intelligence sources. Currently, it focuses on URLhaus but is structured to easily add more sources (e.g., VirusTotal, PhishTank) in the future.
+*   **Primary Responsibility**: **Intelligence Aggregation**.
+*   **Verified Details**:
+    *   **Extensible Design**: The `ThreatIntelAggregator` class uses a dictionary of functions (`self.sources`) to manage its different intelligence providers. This is a clean design pattern that makes it easy to add a new provider by simply adding a new key-value pair and a corresponding `_check_...` function.
+    *   **Risk Calculation**: It includes logic (`_calculate_overall_risk`) to synthesize the results from multiple sources into a single, high-level verdict ("high", "medium", "low") and a confidence score.
 
 ### ➤ `enrich/urlhaus.py`
-*   **Primary Responsibility**: **URLhaus API Client**. Contains the specific function `lookup_url` that knows how to construct the correct API request for the Abuse.ch URLhaus service, send it, and parse the JSON response.
+*   **Primary Responsibility**: **URLhaus API Client**.
+*   **Verified Details**:
+    *   **API Interaction**: The `lookup_url` function correctly sends a `POST` request with the URL in the request body, as required by the URLhaus API v1.
+    *   **Data Parsing**: It does more than just return the raw API response. The `parse_urlhaus_response` function structures the important data, such as payload information and blacklist status, into a cleaner format.
 
 ---
 ## Directory 4: `reports/` - Report Generation & Formatting
 
-This directory is responsible for compiling all the collected analysis data into a final, human-readable format.
+This directory assembles all collected data into the final output.
 
 ### ➤ `reports/render.py`
-*   **Primary Responsibility**: **Report Assembly**. This is the final step in the data-processing chain.
-*   **Key Function**:
-    *   **`build_report(...)`**: This function is the main workhorse. It receives all the data points from the pipeline (the URL, the ML score, the threat intel results, the IOCs, the AI summary). It then organizes this data into a "context" dictionary and uses the Jinja2 templating engine to pass this context to a template file.
+*   **Primary Responsibility**: **Report Assembly using Templates**.
+*   **Verified Details**:
+    *   **Jinja2 Environment**: The `get_template_env` function correctly configures the Jinja2 templating engine to load templates from the `reports/templates/` directory.
+    *   **Context Preparation**: The `build_report` function acts as a data pre-processor for the template. It performs calculations (like `confidence`), formats data (like creating a `sandbox_data` dictionary), and generates lists of `risk_factors` before passing the final, clean `context` dictionary to the template for rendering.
 
 ### ➤ `reports/openai_enhancer.py`
-*   **Primary Responsibility**: **AI-Powered Summarization**. This module integrates with the OpenAI API.
-*   **Key Function**:
-    *   **`enhance_report_with_openai(...)`**: Takes the raw JSON data from the analysis, formats it into a clear and concise prompt, and sends it to the `gpt-4o-mini` model. The prompt instructs the AI to act as a Tier 3 SOC analyst and provide an executive summary. The natural language text returned by the API is then used in the final report.
+*   **Primary Responsibility**: **AI-Powered Summarization**.
+*   **Verified Details**:
+    *   **Prompt Engineering**: This module contains the "prompt engineering" for the application. The `system_prompt` explicitly instructs the AI on its role ("Tier 3 SOC analyst") and the desired output format (Markdown, key findings, IOCs, verdict).
+    *   **Data Sanitization**: Before sending data to OpenAI, the code creates a copy (`prompt_data = report_data.copy()`) to avoid modifying the original data object. This is good practice.
 
 ### ➤ `reports/templates/report.md.j2`
-*   **Primary Responsibility**: **Report Structure and Layout**. This is not a Python file, but a Jinja2 template. It defines the structure of the final output report in Markdown format. It contains placeholders (like `{{ score }}`, `{{ summary }}`, `{{ iocs.ips }}`) that the `render.py` script fills in with the actual analysis data. This separation of logic and presentation makes it easy to change the report's layout without touching any Python code.
+*   **Primary Responsibility**: **Report Structure and Layout**.
+*   **Verified Details**:
+    *   **Conditional Logic**: The template uses Jinja2 control structures extensively. For example, `{% if score >= threshold %}` is used to change the color and text of the risk level, and `{% if sandbox %}` ensures the entire sandbox section is omitted from the report if no sandbox analysis was performed. This makes the final report dynamic and clean.
