@@ -39,6 +39,9 @@ COPY --chown=appuser:appuser . .
 # Copy frontend files (FastAPI will serve these)
 COPY --chown=appuser:appuser frontend /app/frontend
 
+# Copy ML model
+COPY --chown=appuser:appuser ml/model.joblib /app/ml/model.joblib
+
 # Create necessary directories and set permissions
 RUN mkdir -p data storage ml/metrics logs && \
     chown -R appuser:appuser /app
