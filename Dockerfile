@@ -10,11 +10,12 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy requirements
+# Copy requirements and constraints
 COPY backend/requirements.txt .
+COPY constraints.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Install Python dependencies with constraints to enforce version pinning
+RUN pip install --no-cache-dir --user -c constraints.txt -r requirements.txt
 
 # Runtime stage
 FROM python:3.11-slim

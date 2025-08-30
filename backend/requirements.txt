@@ -10,7 +10,7 @@ email-validator==2.1.0
 # ML & Data Science
 scikit-learn==1.7.1
 pandas==2.3.2
-numpy==1.26.4 
+numpy==1.26.4  # Must be <2.0 for river compatibility
 joblib==1.5.2
 mlflow==3.3.2
 

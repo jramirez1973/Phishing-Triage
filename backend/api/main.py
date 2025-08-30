@@ -240,6 +240,19 @@ async def threat_intel(url_data: dict):
     except Exception as e:
         raise HTTPException(500, f"Intelligence lookup failed: {str(e)}")
 
+# Add version logging for deployment debugging
+import numpy, pandas, sklearn, joblib, mlflow, sys, logging
+logging.basicConfig(level=logging.INFO)
+logging.info(
+    "Runtime versions → "
+    f"numpy {numpy.__version__}, "
+    f"pandas {pandas.__version__}, "
+    f"sklearn {sklearn.__version__}, "
+    f"joblib {joblib.__version__}, "
+    f"mlflow {mlflow.__version__}, "
+    f"python {sys.version.split()[0]}"
+)
+
 # Mount static files for the frontend AFTER all API routes
 # The frontend is in the ../../frontend directory relative to this file
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
