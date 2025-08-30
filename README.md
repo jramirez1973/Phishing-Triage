@@ -97,12 +97,12 @@ graph TD
 ### ⚙️ API Documentation
 ![API Page](assets/api_page.png)
 
-### 🛡️ Risk Analysis in Action
+### 🛡️ Risk Analysis in Action (Demo videos)
 
-#### ✅ Low Risk Result
+#### ✅ Low Risk Result (GIF)
 ![Low Risk Result](assets/low_risk.gif)
 
-#### 🚨 High Risk Result
+#### 🚨 High Risk Result (GIF)
 ![High Risk Result](assets/high_risk.gif)
 
 ---
