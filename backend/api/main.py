@@ -25,10 +25,6 @@ app = FastAPI(
     description="Automated phishing detection and enrichment service"
 )
 
-# Mount static files for the frontend AFTER API routes to prevent shadowing
-# The frontend is in the ../../frontend directory relative to this file
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
 # Add CORS middleware for frontend
 app.add_middleware(
     CORSMiddleware,
@@ -243,3 +239,7 @@ async def threat_intel(url_data: dict):
         return result
     except Exception as e:
         raise HTTPException(500, f"Intelligence lookup failed: {str(e)}")
+
+# Mount static files for the frontend AFTER all API routes
+# The frontend is in the ../../frontend directory relative to this file
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
